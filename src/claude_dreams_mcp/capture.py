@@ -1,4 +1,19 @@
-"""Wayland screen capture via grim, scoped to the chiaki-ng window."""
+"""Wayland screen capture via grim, scoped to the chiaki-ng window.
+
+STATUS: scaffold-only. Will not work on GNOME-Wayland.
+
+R&D finding (docs/research/05): `grim` uses the `wlr-screencopy` protocol
+which Mutter (GNOME) does not implement. Will work on wlroots compositors
+(Sway, Hyprland) only. `gnome-screenshot`'s D-Bus API was also revoked in
+GNOME 49.
+
+TODO: replace with PipeWire via the xdg-desktop-portal ScreenCast interface.
+Python package `pipewire-capture` (pip install pipewire-capture) handles the
+portal handshake. User picks the chiaki-ng window once at MCP startup
+(source-picker dialog), then frames stream silently — correct API for
+1-3 fps capture. See docs/research/05 for fallback (Screenshot portal +
+full-screen + crop).
+"""
 from __future__ import annotations
 
 import io

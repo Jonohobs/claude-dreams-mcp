@@ -1,10 +1,23 @@
 """Virtual DualSense-shaped gamepad over Linux uinput.
 
-Note: this creates an evdev/uinput device (gamepad-class). chiaki-ng identifies
-real DualSenses by USB VID/PID at the HID layer (Sony 054c:0ce6) when deciding
-to forward gyro upstream. To pass as a DualSense for gyro forwarding through
-chiaki, this likely needs to be promoted to a uhid device with the matching
-HID descriptor — TODO once button/stick path is verified.
+STATUS: scaffold-only. Sticks and buttons will forward through chiaki-ng,
+gyro WILL NOT.
+
+R&D finding (docs/research/01): chiaki-ng reads gyro/accel via SDL2's
+SDL_SensorType, which only fires for controllers `hid-playstation` has
+bound to. A uinput device doesn't create a HID device underneath, so
+hid-playstation never binds and SDL never sees motion sensors — regardless
+of VID/PID on the evdev node.
+
+TODO: replace this whole module with a wrapper over `inputtino`
+(https://github.com/games-on-whales/inputtino), which creates a real uhid
+DualSense with full HID descriptor + gyro/accel/touchpad/adaptive triggers.
+Used in production by Sunshine/Wolf. Python bindings live in
+`bindings/python/` in that repo. Setup: load `uhid` kernel module, user in
+`input` group, udev rule for /dev/uhid.
+
+If the Python bindings turn out to be sensor-incomplete, fallback is a small
+C++ shim over inputtino's C++ API exposing a Unix socket — ~150 LOC.
 """
 from __future__ import annotations
 
