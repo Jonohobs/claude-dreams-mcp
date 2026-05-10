@@ -11,6 +11,20 @@
 
 **Acceptance:** chiaki-ng connected to PS5, virtual DualSense paired, gyro forwarded such that the imp moves in response to synthetic gyro values.
 
+### Phase 1 alt-path — chiaki-ng DSU motion-source extension
+
+Considered *before* committing to the inputtino/uhid plumbing. If feasible, it's the cleaner architecture.
+
+R&D found that chiaki-ng does **not** currently implement a DSU (cemuhook) motion-source client. Adding one would mean:
+- chiaki-ng can receive gyro/accel from any DSU server process over UDP.
+- Our MCP becomes a tiny DSU server emitting synthetic motion alongside the regular virtual gamepad (which only needs sticks/buttons → uinput is fine for that).
+- Decouples gyro from controller identity — no fake DualSense needed for the motion path.
+- Useful upstream (phone-as-gyro for chiaki is a known community want), increasing odds the PR lands.
+
+**Spike (~1 day):** read chiaki-ng's input pipeline (C++/Qt6), assess where a DSU client would slot in (parallel to the SDL2 sensor reader or replacing it), check whether the maintainer (streetpea) is open to the addition via an issue first.
+
+**Decision gate:** if spike says ≤1 week to a working patch, take the alt-path. If it's a multi-week C++ project, fall back to `inputtino` and revisit later.
+
 ## Phase 2 — semantic tool surface + world model
 - [ ] Implement `set_intent(mode)` and server-side action filtering per mode.
 - [ ] Build server-side world model from input history (current mode, last-known selection, imp position estimate).
